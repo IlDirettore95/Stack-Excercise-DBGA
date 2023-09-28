@@ -1,43 +1,73 @@
-using System.Collections;
-using System.Collections.Generic;
 using System;
-using UnityEngine;
 
-public class Stack
+public class Stack<T>
 {
-    private int[] array;
-    private int size;
-    private int headIndex;
+    private T[] array;
+    private int count;
+
+    private int headIndex => count - 1;
+    private int stackCapacity => array.Length;
+
+    private const int defaultCapacity = 10;
+
+    public Stack()
+    {
+        array = new T[defaultCapacity];
+
+        count = 0;
+    }
 
     public Stack(int capacity)
     {
         if (capacity <= 0) throw new ArgumentException();
 
-        array = new int[capacity];
+        array = new T[capacity];
 
-        size = 0;
-        headIndex = -1;
+        count = 0;
     }
 
-    public void Push(int element)
+    public void Push(T element)
     {
-        headIndex++;
+        if (count == stackCapacity)
+        {
+            T[] tmp = new T[stackCapacity * 2];
+
+            for(int i = 0; i < stackCapacity; i++)
+            {
+                tmp[i] = array[i];
+            }
+
+            array = tmp;
+        }
+
+        count++;
         array[headIndex] = element;
-        size++;
     }
 
-    public int Pop()
+    public T Pop()
     {
         if (IsEmpty()) throw new InvalidOperationException();
 
-        int element = array[headIndex];
-        headIndex--;
-        size--;
+        T element = array[headIndex];
+
+        count--;
+
+        if (count < stackCapacity / 4)
+        {
+            T[] tmp = new T[stackCapacity / 2];
+
+            for (int i = 0; i < count; i++)
+            {
+                tmp[i] = array[i];
+            }
+
+            array = tmp;
+        }
 
         return element;
     }
 
-    public int Peek()
+    public T Peek()
     {
         if (IsEmpty()) throw new InvalidOperationException();
 
@@ -46,6 +76,30 @@ public class Stack
 
     public bool IsEmpty()
     {
-        return size <= 0;
+        return count <= 0;
+    }
+
+    public override string ToString()
+    {
+        string result = string.Empty;
+
+        for(int i = 0; i < headIndex; i++)
+        {
+            if(i == headIndex - 1)
+            {
+                result += array[i].ToString() + " ";
+            }
+            else
+            {
+                result += array[i].ToString() + ", ";
+            }
+            
+        }
+
+        result += array[headIndex].ToString() + "<- head | ";
+
+        result += "Capacity: " + array.Length;
+
+        return result;
     }
 }
